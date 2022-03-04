@@ -1,23 +1,33 @@
 from math import cos, sin
 
 import pygame
-from pygame import Vector2, Vector3
+from pygame import Rect, Vector2, Vector3
 
 from settings import *
 
 class Camera:
-    def __init__(self, pos=(0.8, -2.3, -200)):
+    def __init__(self, pos=(50, 50, -200)):
         self.pos = Vector3(pos)
-        self.orientation = Vector3(-0.7, 0, 0)
+        self.orientation = Vector3(0, 0, 0)
 
+class Mesh:
+    def __init__(self, points = [], faces=[]):
+        self.vertices = [Vector3(p) for p in points]
+        self.faces = faces
+
+    def scale(self, scale=1):
+        self.points = [Vector3(p.x*scale, p.y*scale, p.z*scale) for p in self.vertices]
+    
 class Scene:
-    def __init__(self, c, objs=[], scale=100):
-        self.view = pygame.Vector3(winWidth/2, winHeight/2, 1)
+    def __init__(self, c, objs=[], scale=-100):
+        self.view = Vector3(winWidth/2, winHeight/2, 1)
         self.camera = c
         self.scale = scale
-        self.FOV = 1000
-        self.objects = [pygame.Vector3(o[0]*scale, o[1]*scale, o[2]*scale) for o in objs]
-    
+        self.FOV = 200
+        self.objects = objs
+        for o in objs:
+            o.scale(self.scale)
+        
     def transform(self, vec):
         '''
         Transforms a 3d vector
@@ -59,7 +69,17 @@ class Scene:
         b.y = ((e.z+f)/(d.z+f))*d.y + e.y
 
         return b
+
+    def inView(self, vec):
+        if vec.x > winWidth or vec.y > winHeight or vec.x < 0 or vec.y < 0:
+            return False
+        return True
     
     def render(self, win):
         for o in self.objects:
-            pygame.draw.circle(win, green, self.project(self.transform(o)), 1)
+            # for v in o.vertices:
+            #     p = self.project(self.transform(v))
+            #     pygame.draw.circle(win, green, p, 1)
+
+            for f in o.faces:
+                pygame.draw.polygon(win, green, [self.project(self.transform(o.points[p])) for p in f], 1)
