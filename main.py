@@ -14,6 +14,7 @@ pygame.mouse.set_visible(0); pygame.event.set_grab(True)
 win = pygame.display.set_mode((winWidth, winHeight))
 pygame.display.set_caption("3d POWER")
 
+pygame.event.set_grab(True)
 # Cube
 points = [(1, 1, 1), (-1, 1, 1), (-1, -1, 1), (1, -1, 1), (1, 1, -1), (-1, 1, -1), (-1, -1, -1), (1, -1, -1)]
 load = pickle.load( open( "out.p", "rb" ) )
@@ -27,22 +28,14 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-        if event.type == pygame.MOUSEMOTION:
-            y, x = event.rel; x /= s.FOV; y /= s.FOV; cam.orientation.x += x; cam.orientation.y += y
-    
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP]:
-        cam.pos.z += 1
-    if keys[pygame.K_DOWN]:
-        cam.pos.z -= 1
-    if keys[pygame.K_RIGHT]:
-        cam.pos.x += 1
-    if keys[pygame.K_LEFT]:
-        cam.pos.x -= 1
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
 
     win.fill(black)
+    s.update()
     s.render(win)
-    # cam.orientation.y += 0.01
+    # print(pygame.event.get_grab())
     pygame.display.update()
 
 pygame.quit()

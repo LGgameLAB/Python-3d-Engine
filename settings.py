@@ -17,3 +17,4 @@ purple = (102, 0, 102)
 orangeRed = (255,69,0)
 
 winWidth, winHeight = 500, 500
+dt = 1

@@ -5,10 +5,33 @@ from pygame import Rect, Vector2, Vector3
 
 from settings import *
 
+# class Vector2:
+#     def __init__(self, x, y):
+#         if not isinstance(x, int):
+#             self.x = vector
 class Camera:
     def __init__(self, pos=(50, 50, -200)):
         self.pos = Vector3(pos)
         self.orientation = Vector3(0, 0, 0)
+        self.FOV = 200
+        self.sensitivity = 0.1
+        self.speed = 1
+
+    def update(self):
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEMOTION:
+                y, x = event.rel
+                self.orientation += (x/self.FOV*self.sensitivity, y/self.FOV*self.sensitivity, 0)
+                
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            self.pos.z += dt*self.speed
+        if keys[pygame.K_s]:
+            self.pos.z -= dt*self.speed
+        if keys[pygame.K_d]:
+            self.pos.x += dt*self.speed
+        if keys[pygame.K_a]:
+            self.pos.x -= dt*self.speed
 
 class Mesh:
     def __init__(self, points = [], faces=[]):
@@ -23,7 +46,6 @@ class Scene:
         self.view = Vector3(winWidth/2, winHeight/2, 1)
         self.camera = c
         self.scale = scale
-        self.FOV = 200
         self.objects = objs
         for o in objs:
             o.scale(self.scale)
@@ -63,7 +85,7 @@ class Scene:
         d = vec
 
         e = self.view
-        f = self.FOV
+        f = self.camera.FOV
 
         b.x = ((e.z+f)/(d.z+f))*d.x + e.x
         b.y = ((e.z+f)/(d.z+f))*d.y + e.y
@@ -83,3 +105,6 @@ class Scene:
 
             for f in o.faces:
                 pygame.draw.polygon(win, green, [self.project(self.transform(o.points[p])) for p in f], 1)
+
+    def update(self):
+        self.camera.update()
